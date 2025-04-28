@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 export interface IDocument {
   id: string;
   title: string;
@@ -6,7 +7,7 @@ export interface IDocument {
 
 // ===Request===
 
-export type ISaveDocumentRequest = Document;
+export type ISaveDocumentRequest = IDocument;
 
 export interface IFetchUniqueDocumentRequest {
   id: string;
