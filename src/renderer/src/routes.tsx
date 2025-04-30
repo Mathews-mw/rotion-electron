@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
 				element: <BlankPage />,
 			},
 			{
-				path: '/document',
+				path: '/documents/:id',
 				element: <DocumentPage />,
 			},
 		],

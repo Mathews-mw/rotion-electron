@@ -5,7 +5,11 @@ import Typography from '@tiptap/extension-typography';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
-export function Editor() {
+interface IProps {
+	content: string;
+}
+
+export function Editor({ content }: IProps) {
 	const editor = useEditor({
 		extensions: [
 			StarterKit.configure({
@@ -22,7 +26,7 @@ export function Editor() {
 					'before:content-[attr(data-placeholder)] before:text-gray-500 before:h-0 before:float-left before:pointer-events-none',
 			}),
 		],
-		content: '<h1>What is in your mind?</h1><p>Write something here...</p>',
+		content,
 		autofocus: 'end',
 		editorProps: {
 			attributes: {
