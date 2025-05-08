@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import { useParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { ToC } from '../components/toc';
-import { Editor } from '../components/editor';
+import { queryClient } from '../lib/react-query';
+import { IDocument } from '~/src/shared/types/ipc';
+import { Editor, IContentUpdateDocumentParams } from '../components/editor';
 
 export function DocumentPage() {
 	const { id } = useParams<{ id: string }>();
@@ -18,6 +20,21 @@ export function DocumentPage() {
 		enabled: !!id,
 	});
 
+	const { mutateAsync: saveDocumentFn, isPending } = useMutation({
+		mutationFn: window.api.saveDocument,
+		onSuccess: async (_, variables) => {
+			queryClient.setQueryData<IDocument[]>(['documents'], (documents) => {
+				return documents?.map((document) => {
+					if (document.id === id) {
+						return { ...document, title: variables.title };
+					}
+
+					return document;
+				});
+			});
+		},
+	});
+
 	const initialContent = useMemo(() => {
 		if (response) {
 			return `<h1>${response.data.title}</h1>${response.data.content ?? '<p></p>'}`;
@@ -25,6 +42,14 @@ export function DocumentPage() {
 
 		return '';
 	}, [response]);
+
+	async function handleEditorContentUpdate({ title, content }: IContentUpdateDocumentParams) {
+		await saveDocumentFn({
+			id: id!,
+			title,
+			content,
+		});
+	}
 
 	return (
 		<div className="flex flex-1 gap-8">
@@ -48,7 +73,7 @@ export function DocumentPage() {
 			</aside>
 
 			<section className="flex flex-1 flex-col items-center">
-				{!isFetching && response && <Editor content={initialContent} />}
+				{!isFetching && response && <Editor content={initialContent} onContentUpdate={handleEditorContentUpdate} />}
 			</section>
 		</div>
 	);

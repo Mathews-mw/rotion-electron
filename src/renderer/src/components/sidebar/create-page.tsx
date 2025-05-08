@@ -3,8 +3,12 @@ import { useMutation } from '@tanstack/react-query';
 import { Plus } from '@phosphor-icons/react';
 import { queryClient } from '../../lib/react-query';
 import { IDocument } from '~/src/shared/types/ipc';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 export function CreatePage() {
+	const navigate = useNavigate();
+
 	const { mutateAsync: createDocumentFn, isPending } = useMutation({
 		mutationFn: async () => {
 			const response = await window.api.createDocument();
@@ -19,8 +23,22 @@ export function CreatePage() {
 					return [response.data];
 				}
 			});
+
+			navigate(`/documents/${response.data.id}`);
 		},
 	});
+
+	useEffect(() => {
+		function handleNewDocument() {
+			createDocumentFn();
+		}
+
+		const unsubscribe = window.api.onNewDocumentRequest(handleNewDocument);
+
+		return () => {
+			unsubscribe();
+		};
+	}, [createDocumentFn]);
 
 	return (
 		<button

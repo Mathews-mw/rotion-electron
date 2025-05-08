@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { contextBridge, ipcRenderer } from "electron";
-import { ElectronAPI, electronAPI } from "@electron-toolkit/preload";
+import { ElectronAPI } from "@electron-toolkit/preload";
 
 import { IPC } from "../shared/constants/ipc";
 import {
@@ -41,6 +41,14 @@ const api = {
 
   deleteDocument(request: IDeleteDocumentRequest): Promise<void> {
     return ipcRenderer.invoke(IPC.DOCUMENTS.DELETE, request);
+  },
+
+  onNewDocumentRequest(callback: () => void) {
+    ipcRenderer.on("new-document", callback);
+
+    return () => {
+      ipcRenderer.off("new-document", callback);
+    };
   },
 };
 

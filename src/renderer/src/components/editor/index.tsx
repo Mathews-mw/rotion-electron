@@ -5,11 +5,17 @@ import Typography from '@tiptap/extension-typography';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
-interface IProps {
+export interface IContentUpdateDocumentParams {
+	title: string;
 	content: string;
 }
 
-export function Editor({ content }: IProps) {
+interface IProps {
+	content: string;
+	onContentUpdate: (params: IContentUpdateDocumentParams) => void;
+}
+
+export function Editor({ content, onContentUpdate }: IProps) {
 	const editor = useEditor({
 		extensions: [
 			StarterKit.configure({
@@ -32,6 +38,18 @@ export function Editor({ content }: IProps) {
 			attributes: {
 				class: 'focus:outline-none prose prose-invert prose-headings:mt-0',
 			},
+		},
+		onUpdate: ({ editor }) => {
+			const contentRegex = /(<h1>(?<title>.+)<\/h1>(?<content>.+)?)/;
+			const parsedContent = editor.getHTML().match(contentRegex)?.groups;
+
+			const title = parsedContent?.title ?? '';
+			const content = parsedContent?.content ?? '';
+
+			onContentUpdate({
+				title,
+				content,
+			});
 		},
 	});
 
