@@ -17,8 +17,6 @@ export function SearchBar({ open, onOpenChange }: IProps) {
 		queryFn: async () => {
 			const response = await window.api.fetchDocuments();
 
-			console.log('documents : ', response.data);
-
 			return response;
 		},
 	});
